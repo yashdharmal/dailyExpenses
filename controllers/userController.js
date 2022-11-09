@@ -1,8 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Users = require("../models/usersModel")
-const SECRECT_KEY = "skajdfhO*&^D*&E$r8739rbc";
+
 
 
 const signup = async (req, res) => {
@@ -47,7 +48,7 @@ const login = async (req, res,) => {
 
 
         if (await bcrypt.compare(recivedPassword, userFound.password)) {
-            var token = jwt.sign({ name: req.body.name, email: req.body.email }, SECRECT_KEY);
+            var token = jwt.sign({ name: req.body.name, email: req.body.email }, process.env.SECRECT_KEY);
             res.send({ message: "You have succesfully loged in", token })
         } else {
             res.send("plese check email or pass")

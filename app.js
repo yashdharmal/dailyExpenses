@@ -1,6 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const userRouter = require('./routers/userRouter');
+
 const port = process.env.PORT || 3400
 
 
@@ -10,7 +12,8 @@ app.use(express.json());
 
 mongoose.connect(
     // "mongodb://localhost:27017"
-    "mongodb+srv://yashraj:dBqe7WSnN3btT0pl@cluster0.rxu2hq3.mongodb.net/test",
+    process.env.DB_HOST,
+
 
     {
         dbName: "DailyExpenses"
