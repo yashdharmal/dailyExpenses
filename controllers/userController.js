@@ -14,11 +14,11 @@ const signup = async (req, res) => {
         if (userFound) {
             res.send({ message: "this email is already registed please sign in" });
         } else {
-
+            var token = jwt.sign({ name: req.body.name, email: req.body.email }, SECRECT_KEY);
             let myData = new Users(req.body);
             myData.save();
 
-            res.send({ message: "You have succesfully registed" })
+            res.send({ message: "You have succesfully registed", token })
 
         }
 
