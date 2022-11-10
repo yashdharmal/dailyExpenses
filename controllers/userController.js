@@ -12,7 +12,7 @@ const signup = async (req, res) => {
 
 
         if (userFound) {
-            res.send("this email is already registed please sign in");
+            res.send({ message: "this email is already registed please sign in" });
         } else {
 
             let myData = new Users(req.body);
@@ -40,7 +40,7 @@ const login = async (req, res,) => {
 
 
         if (!userFound) {
-            res.send("User not found")
+            res.send({ message: "User not found" })
 
         }
 
@@ -50,7 +50,7 @@ const login = async (req, res,) => {
             var token = jwt.sign({ name: req.body.name, email: req.body.email }, SECRECT_KEY);
             res.send({ message: "You have succesfully loged in", token })
         } else {
-            res.send("plese check email or pass")
+            res.send({ message: "plese check email or pass" })
         }
 
     } catch (error) {
