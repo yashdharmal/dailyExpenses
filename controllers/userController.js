@@ -1,22 +1,27 @@
+require('dotenv').config()
 const express = require('express');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Users = require("../models/usersModel")
-const SECRECT_KEY = "skajdfhO*&^D*&E$r8739rbc";
 
 
 const signup = async (req, res) => {
     try {
         let userFound = await Users.findOne({ email: req.body.email });
-        console.log(userFound);
+
 
 
         if (userFound) {
             res.send({ message: "this email is already registed please sign in" });
         } else {
-            var token = jwt.sign({ name: req.body.name, email: req.body.email }, SECRECT_KEY);
-            let myData = new Users(req.body);
-            myData.save();
+            // let myData = new Users(req.body);
+            // myData.save();
+            await Users.create(req.body)
+
+            let findUserId = await Users.findOne({ email: req.body.email })
+            // findUserId = findUserId._id
+            userId = findUserId._id
+            var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
 
             res.send({ message: "You have succesfully registed", token })
 
@@ -47,7 +52,10 @@ const login = async (req, res,) => {
 
 
         if (await bcrypt.compare(recivedPassword, userFound.password)) {
-            var token = jwt.sign({ name: req.body.name, email: req.body.email }, SECRECT_KEY);
+            let findUserId = await Users.findOne({ email: req.body.email })
+            // findUserId = findUserId._id
+            userId = findUserId._id
+            var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
             res.send({ message: "You have succesfully loged in", token })
         } else {
             res.send({ message: "plese check email or pass" })

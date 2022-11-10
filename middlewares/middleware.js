@@ -1,6 +1,7 @@
+require('dotenv').config()
 const express = require('express');
 const jwt = require("jsonwebtoken");
-const SECRECT_KEY = "skajdfhO*&^D*&E$r8739rbc";
+
 
 
 
@@ -8,10 +9,9 @@ const authMiddelware = (req, res, next) => {
     try {
         let token = req.headers.auth
 
-        let tokenData = jwt.verify(token, SECRECT_KEY)
+        let tokenData = jwt.verify(token, process.env.SECRECT_KEY)
 
         req.user = tokenData
-        console.log(req.user);
         next();
     } catch (error) {
         res.status(401).send("Un authorized")
