@@ -1,3 +1,4 @@
 /node_modules
 ./env
 ./daily-expenses-web-api
+.env
