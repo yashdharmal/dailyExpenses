@@ -5,7 +5,6 @@ const express = require('express');
 const router = express.Router();
 const User = require("../models/usersModel");
 
-const SECRECT_KEY = "skajdfhO*&^D*&E$r8739rbc";
 const userController = require("../controllers/userController")
 const validationMiddleware = require("../middlewares/middleware")
 const userValidation = require("../validation/userValidation")

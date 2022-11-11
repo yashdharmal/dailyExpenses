@@ -3,6 +3,7 @@ const express = require('express');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Users = require("../models/usersModel")
+const Expenses = require("../models/expensesModel")
 
 
 const signup = async (req, res) => {
@@ -12,7 +13,7 @@ const signup = async (req, res) => {
 
 
         if (userFound) {
-            res.send({ message: "this email is already registed please sign in" });
+            return res.send({ message: "this email is already registed please sign in" });
         } else {
             // let myData = new Users(req.body);
             // myData.save();
@@ -22,8 +23,11 @@ const signup = async (req, res) => {
             // findUserId = findUserId._id
             userId = findUserId._id
             var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
+            const expenses = []
+            const dataForExpenses = { userId: userId, expenses }
+            await Expenses.create(dataForExpenses)
 
-            res.send({ message: "You have succesfully registed", token })
+            return res.send({ message: "You have succesfully registed", token })
 
         }
 
@@ -45,7 +49,7 @@ const login = async (req, res,) => {
 
 
         if (!userFound) {
-            res.send({ message: "User not found" })
+            return res.send({ message: "User not found" })
 
         }
 
@@ -56,9 +60,9 @@ const login = async (req, res,) => {
             // findUserId = findUserId._id
             userId = findUserId._id
             var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
-            res.send({ message: "You have succesfully loged in", token })
+            return res.send({ message: "You have succesfully loged in", token })
         } else {
-            res.send({ message: "plese check email or pass" })
+            return res.send({ message: "plese check email or pass" })
         }
 
     } catch (error) {

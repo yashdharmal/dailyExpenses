@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const userRouter = require('./routers/userRouter');
+const expensesRouter = require("./routers/expensesRouter")
 const port = process.env.PORT || 3400
 
 
@@ -24,7 +25,7 @@ mongoose.connect(
 
 
 
-app.use('', userRouter);
+app.use('', userRouter, expensesRouter);
 app.listen(port, (err) => {
     if (!err) console.log("port 3400 is running");
 })
