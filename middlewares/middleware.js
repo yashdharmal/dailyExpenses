@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 
 const authMiddelware = (req, res, next) => {
     try {
-        let token = req.headers.auth
+        let token = req.headers.authorization
 
         let tokenData = jwt.verify(token, process.env.SECRECT_KEY)
 
