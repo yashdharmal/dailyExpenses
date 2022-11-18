@@ -11,9 +11,8 @@ const port = process.env.PORT || 3400
 const app = express();
 app.use(express.json());
 app.use(cors());
-
 mongoose.connect(
-    // "mongodb://localhost:27017"
+
     process.env.DB_HOST,
 
     {

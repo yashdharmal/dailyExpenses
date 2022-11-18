@@ -15,12 +15,11 @@ const signup = async (req, res) => {
         if (userFound) {
             return res.send({ message: "this email is already registed please sign in" });
         } else {
-            // let myData = new Users(req.body);
-            // myData.save();
+
             await Users.create(req.body)
 
             let findUserId = await Users.findOne({ email: req.body.email })
-            // findUserId = findUserId._id
+
             userId = findUserId._id
             var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
             const expenses = []
@@ -42,22 +41,18 @@ const signup = async (req, res) => {
 
 const login = async (req, res,) => {
     try {
-
         const recivedEmail = req.body.email;
         const recivedPassword = req.body.password;
         const userFound = await Users.findOne({ email: recivedEmail })
-
 
         if (!userFound) {
             return res.send({ message: "User not found" })
 
         }
 
-
-
         if (await bcrypt.compare(recivedPassword, userFound.password)) {
             let findUserId = await Users.findOne({ email: req.body.email })
-            // findUserId = findUserId._id
+
             userId = findUserId._id
             var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
             return res.send({ message: "You have succesfully loged in", token })
@@ -66,6 +61,7 @@ const login = async (req, res,) => {
         }
 
     } catch (error) {
+        console.log({ error })
         res.send(error)
     }
 
