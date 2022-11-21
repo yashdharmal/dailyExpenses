@@ -101,7 +101,7 @@ const fetchExpenses = async (req, res) => {
 
             await expences.sort(compare)
 
-            return res.send({ totalExpense, expences: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
 
 
 
@@ -115,7 +115,7 @@ const fetchExpenses = async (req, res) => {
             await expences.sort(compare)
 
 
-            return res.send({ totalExpense, expences: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
             // return res.send({ weeklyExpenceTotal, weeklyExpences: paginate(weeklyExpences) })
 
         }
@@ -125,7 +125,7 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
             await expences.sort(compare)
 
-            return res.send({ totalExpense, expences: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
         if (yearly) {
             let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
@@ -134,7 +134,7 @@ const fetchExpenses = async (req, res) => {
 
             await expences.sort(compare)
 
-            return res.send({ totalExpense, expences: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
         if (fromDate && toDate) {
             fromDate = moment(fromDate);
@@ -145,7 +145,7 @@ const fetchExpenses = async (req, res) => {
 
             await expences.sort(compare)
 
-            return res.send({ totalExpense, expences: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
 
@@ -156,7 +156,7 @@ const fetchExpenses = async (req, res) => {
 
             await expences.sort(compare)
 
-            return res.send({ expences: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
         let allExpenses = await Expenses.findOne({ userId: userId })
@@ -164,7 +164,7 @@ const fetchExpenses = async (req, res) => {
 
         await expenses.sort(compare)
 
-        return res.send({ expences: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+        return res.send({ expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
 
 
     } catch (error) {
@@ -393,34 +393,33 @@ const downloadExpenses = async (req, res) => {
         }))
         let expenses = allExpenses.expenses.sort(compare)
 
-        // for (let element of expenses) {
-        //     element.dateAndTime = moment(element.dateAndTime).format('MMMM Do YYYY, h:mm:ss a')
-        //     delete element._id
-        // }
+        for (let element of expenses) {
+            element.dateAndTime = moment(element.dateAndTime).format('MMMM Do YYYY, h:mm:ss a')
+            delete element._id
+        }
 
 
         dateConverter(expenses)
 
 
 
-        // const csv = parserObj.parse(expenses)
+        const csv = parserObj.parse(expenses)
 
-        // fs.writeFile('expenses.csv', csv, function (err) {
-        //     if (err) {
-        //         throw err;
-        //     }
-        //     console.log("File Saved");
-        //     fs.unlinkSync("expenses.csv")
-        // })
+        fs.writeFile('expenses.csv', csv, function (err) {
+            if (err) {
+                throw err;
+            }
+            console.log("File Saved");
+            fs.unlinkSync("expenses.csv")
+        })
 
 
         // csvConverter(expenses)
-        const csv = parserObj.parse(arr)
-        // const csv = parserObj.parse(arr)
+
 
         return res.send(csv)
-        // res.attachment("expenses.csv");
-        // return res.status(200).send(csv)
+        res.attachment("expenses.csv");
+        return res.status(200).send(csv)
 
         // return res.send(expencesData)
     } catch (error) {
