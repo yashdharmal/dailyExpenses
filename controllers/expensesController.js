@@ -48,7 +48,6 @@ const fetchExpenses = async (req, res) => {
         const weekly = req.body.weekly;
         const monthly = req.body.monthly;
         const yearly = req.body.yearly;
-
         const currentDateAndTime = moment();
 
         const filter = { userId: mongoose.Types.ObjectId(userId) }
@@ -232,6 +231,7 @@ const deleteExpense = async (req, res) => {
 const downloadExpenses = async (req, res) => {
     try {
 
+        console.log("hello");
         const parserObj = new Parser();
 
         const userId = req.user.userId
@@ -324,7 +324,6 @@ const downloadExpenses = async (req, res) => {
 
             await todaysExpences.sort(compare)
 
-            let tod
 
             dateConverter(todaysExpences)
 
@@ -403,15 +402,20 @@ const downloadExpenses = async (req, res) => {
 
 
 
-        const csv = parserObj.parse(expenses)
+        // const csv = parserObj.parse(expenses)
 
-        fs.writeFile('expenses.csv', csv, function (err) {
-            if (err) {
-                throw err;
-            }
-            console.log("File Saved");
-            fs.unlinkSync("expenses.csv")
-        })
+        // fs.writeFile('expenses.csv', csv, function (err) {
+        //     if (err) {
+        //         throw err;
+        //     }
+        //     console.log("File Saved");
+        //     fs.unlinkSync("expenses.csv")
+        // })
+
+
+        const parser = new Parser(expenses);
+        const csv = parser.parse(expenses);
+        console.log(csv);
 
 
         // csvConverter(expenses)

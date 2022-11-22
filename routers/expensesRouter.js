@@ -9,9 +9,9 @@ const authMiddelware = require('../middlewares/middleware');
 
 // add expenses 
 router.post("/user/addExpense", authMiddelware.authMiddelware, validationMiddleware.validateRequest(expenseValidation.addExpenseSchema), expensesController.addExpense)
-router.get("/user/fetchExpences", authMiddelware.authMiddelware, validationMiddleware.validateRequest(expenseValidation.fetchExpencesSchema), expensesController.fetchExpenses);
-router.patch("/user/updateExpense", authMiddelware.authMiddelware, validationMiddleware.validateRequest(expenseValidation.updateExpenseSchema), expensesController.editExpense);
-router.delete("/user/deleteExpense", authMiddelware.authMiddelware, validationMiddleware.validateRequest(expenseValidation.deleteExpenseSchema), expensesController.deleteExpense);
-router.get("/downloadExpenses", authMiddelware.authMiddelware, expensesController.downloadExpenses)
+router.post("/user/fetchExpences", authMiddelware.authMiddelware, validationMiddleware.validateRequest(expenseValidation.fetchExpencesSchema), expensesController.fetchExpenses);
+router.post("/user/updateExpense", authMiddelware.authMiddelware, validationMiddleware.validateRequest(expenseValidation.updateExpenseSchema), expensesController.editExpense);
+router.post("/user/deleteExpense", authMiddelware.authMiddelware, validationMiddleware.validateRequest(expenseValidation.deleteExpenseSchema), expensesController.deleteExpense);
+router.post("/downloadExpenses", authMiddelware.authMiddelware, expensesController.downloadExpenses)
 
 module.exports = router;
