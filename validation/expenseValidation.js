@@ -41,7 +41,7 @@ const fetchExpencesSchema = Joi.object({
 
     yearly: Joi.boolean().valid(true),
 
-    pageNumber: Joi.number().positive()
+    // pageNumber: Joi.number().positive()
 
 
 

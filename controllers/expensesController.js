@@ -42,7 +42,7 @@ const addExpense = async (req, res) => {
 
 const fetchExpenses = async (req, res) => {
     try {
-        const { pageNumber = 1, pageSize = 10 } = req.body;
+        // const { pageNumber = 1, pageSize = 10 } = req.body;
         const userId = req.user.userId
         const daily = req.body.daily;
         const weekly = req.body.weekly;
@@ -99,8 +99,9 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
+            return res.send({ totalExpense, expences })
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
+            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
 
 
 
@@ -112,9 +113,10 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
+            return res.send({ totalExpense, expences })
 
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
             // return res.send({ weeklyExpenceTotal, weeklyExpences: paginate(weeklyExpences) })
 
         }
@@ -123,8 +125,9 @@ const fetchExpenses = async (req, res) => {
 
             let totalExpense = total(expences)
             await expences.sort(compare)
+            return res.send({ totalExpense, expences })
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
         if (yearly) {
             let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
@@ -132,8 +135,9 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
+            return res.send({ totalExpense, expences })
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
         if (fromDate && toDate) {
             fromDate = moment(fromDate);
@@ -144,7 +148,8 @@ const fetchExpenses = async (req, res) => {
 
             await expences.sort(compare)
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expences })
+            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
 
@@ -154,16 +159,18 @@ const fetchExpenses = async (req, res) => {
             let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
 
             await expences.sort(compare)
+            return res.send({ expenses: expenses })
 
-            return res.send({ expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            // return res.send({ expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
         let allExpenses = await Expenses.findOne({ userId: userId })
         let expenses = allExpenses.expenses
 
         await expenses.sort(compare)
+        return res.send({ expenses: expenses })
 
-        return res.send({ expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+        // return res.send({ expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
 
 
     } catch (error) {
@@ -291,20 +298,13 @@ const downloadExpenses = async (req, res) => {
 
         // csv converter
 
-        function csvConverter(arr) {
+        // function csvConverter(arr) {
+        //     const parser = new Parser(arr);
+        //     const csv = parser.parse(arr)
+        //     return csv
+        // }
 
-            const csv = parserObj.parse(arr)
 
-            fs.writeFile('expenses.csv', csv, function (err) {
-                if (err) {
-                    throw err;
-                }
-                console.log("File Saved");
-                fs.unlinkSync("expenses.csv")
-            })
-
-            return csv
-        }
 
 
 
@@ -314,8 +314,6 @@ const downloadExpenses = async (req, res) => {
         }, {
             lean: true
         }))
-        console.log({ expencesData });
-
 
         if (daily) {
             let todaysExpences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
@@ -328,24 +326,25 @@ const downloadExpenses = async (req, res) => {
             dateConverter(todaysExpences)
 
             csvConverter(todaysExpences)
+            console.log(todaysExpences);
 
             return res.send(todaysExpences)
 
 
         }
-        // if (weekly) {
+        if (weekly) {
 
-        //     let weeklyExpences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
+            let weeklyExpences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
 
-        //     let weeklyExpenceTotal = total(weeklyExpences)
+            let weeklyExpenceTotal = total(weeklyExpences)
 
-        //     await weeklyExpences.sort(compare)
-
-
-        //     return res.send({ weeklyExpenceTotal, weeklyExpences: weeklyExpences })
+            await weeklyExpences.sort(compare)
 
 
-        // }
+            return res.send({ weeklyExpenceTotal, weeklyExpences: weeklyExpences })
+
+
+        }
         // if (monthly) {
         //     let monthlyExpenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(monthStartTime) && moment(e.dateAndTime).isBefore(monthEndTime));
 
@@ -392,14 +391,29 @@ const downloadExpenses = async (req, res) => {
         }))
         let expenses = allExpenses.expenses.sort(compare)
 
-        for (let element of expenses) {
-            element.dateAndTime = moment(element.dateAndTime).format('MMMM Do YYYY, h:mm:ss a')
-            delete element._id
-        }
+        // for (let element of expenses) {
+        //     element.dateAndTime = moment(element.dateAndTime).format('MMMM Do YYYY, h:mm:ss a')
+        //     delete element._id
+        // }
 
 
         dateConverter(expenses)
 
+        // csvConverter(expenses)
+        // const parser = new Parser(expenses);
+        // const csv = parser.parse(expenses);
+
+        // return res.send(csv)
+
+        expenses.forEach(element => {
+            const csv = json2csvParser.parse(element);
+            console.log(csv);
+
+        });
+        const csv = json2csvParser.parse(expenses);
+        console.log(csv);
+
+        return res.send(csv)
 
 
         // const csv = parserObj.parse(expenses)
@@ -413,17 +427,6 @@ const downloadExpenses = async (req, res) => {
         // })
 
 
-        const parser = new Parser(expenses);
-        const csv = parser.parse(expenses);
-        console.log(csv);
-
-
-        // csvConverter(expenses)
-
-
-        return res.send(csv)
-        res.attachment("expenses.csv");
-        return res.status(200).send(csv)
 
         // return res.send(expencesData)
     } catch (error) {
