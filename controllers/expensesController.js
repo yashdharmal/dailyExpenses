@@ -99,7 +99,7 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
-            return res.send({ totalExpense, expences })
+            return res.send({ totalExpense, expenses: expences })
 
             // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
 
@@ -113,7 +113,7 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
-            return res.send({ totalExpense, expences })
+            return res.send({ totalExpense, expenses: expences })
 
 
             // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
@@ -125,7 +125,7 @@ const fetchExpenses = async (req, res) => {
 
             let totalExpense = total(expences)
             await expences.sort(compare)
-            return res.send({ totalExpense, expences })
+            return res.send({ totalExpense, expenses: expences })
 
             // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
@@ -135,7 +135,7 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
-            return res.send({ totalExpense, expences })
+            return res.send({ totalExpense, expenses: expences })
 
             // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
@@ -148,7 +148,7 @@ const fetchExpenses = async (req, res) => {
 
             await expences.sort(compare)
 
-            return res.send({ totalExpense, expences })
+            return res.send({ totalExpense, expenses: expences })
             // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
