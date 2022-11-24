@@ -90,66 +90,37 @@ const fetchExpenses = async (req, res) => {
         }
         let expencesData = await Expenses.findOne(filter);
 
-
         if (daily) {
-
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
-
             let totalExpense = total(expenses)
-
             await expenses.sort(compare)
-
-
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-
             return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-
-
-
         }
         if (weekly) {
-
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
-
             let totalExpense = total(expenses)
-
             await expenses.sort(compare)
-
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-
             return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-
-
 
         }
         if (monthly) {
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(monthStartTime) && moment(e.dateAndTime).isBefore(monthEndTime));
-
             let totalExpense = total(expenses)
             await expenses.sort(compare)
-
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-
             return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-
-
         }
         if (yearly) {
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
-
             let totalExpense = total(expenses)
-
             await expenses.sort(compare)
-
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-
             return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-
-
         }
         if (fromDate && toDate) {
             fromDate = moment(fromDate).startOf('day');
-
             toDate = moment(toDate).endOf('day');
             let expenses = expencesData.expenses.filter(e => moment(moment(e.dateAndTime)).isBetween(fromDate, toDate))
             let totalExpense = total(expenses)
@@ -157,30 +128,17 @@ const fetchExpenses = async (req, res) => {
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
             return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
         }
-
-
         if (fromDate) {
-
             fromDate = moment(fromDate).startOf('day');
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
-
             await expenses.sort(compare)
-
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-
             return res.send({ expenses: expensesPaginate, totalSize: expensesPaginate.length })
 
         }
-
-
-
         let expenses = expencesData.expenses
         await expenses.sort(compare)
-
-
         let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-
-
         return res.send({ expenses: expensesPaginate, totalSize: expensesPaginate.length })
 
 
@@ -247,205 +205,6 @@ const deleteExpense = async (req, res) => {
 }
 
 
-const downloadExpenses = async (req, res) => {
-    try {
-
-        console.log("hello");
-        const parserObj = new Parser();
-
-        const userId = req.user.userId
-        const daily = req.body.daily;
-        const weekly = req.body.weekly;
-        const monthly = req.body.monthly;
-        const yearly = req.body.yearly;
-
-        const filter = { userId: mongoose.Types.ObjectId(userId) }
-
-        // by providing date and time
-
-        let fromDate = req.body.fromDate;
-        let toDate = req.body.toDate;
-
-        // day
-        const todayStartTime = moment().startOf('day');
-        const todayEndTime = moment().endOf('day');
-        // week
-        const weekStartTime = moment().startOf('week');
-        const weekEndTime = moment().endOf('week')
-
-        // month
-        const monthStartTime = moment().startOf('month')
-        const monthEndTime = moment().endOf('month')
-        // year
-        const yearStartTime = moment().startOf('year');
-        const yearEndTime = moment().endOf('year');
-
-        /// function for dry
-
-        // compare 
-
-        function compare(a, b) {
-            return new Date(b.dateAndTime) - new Date(a.dateAndTime);
-        }
-
-        // total function
-        function total(arr) {
-
-            return arr.reduce(function (acc, curr) {
-                acc = curr.amount + acc
-                return acc
-            }, 0)
-        }
-
-        // dateConverter
-
-
-        function dateConverter(arr) {
-            for (let element of arr) {
-                element.dateAndTime = moment(element.dateAndTime).format('MMMM Do YYYY, h:mm:ss a')
-                delete element._id
-            }
-            return arr
-        }
-
-        // csv converter
-
-        // function csvConverter(arr) {
-        //     const parser = new Parser(arr);
-        //     const csv = parser.parse(arr)
-        //     return csv
-        // }
-
-
-
-
-
-        // let expencesData = await Expenses.findOne(filter);
-
-        let expencesData = (await Expenses.findOne({ filter }, {
-        }, {
-            lean: true
-        }))
-
-        if (daily) {
-            let todaysExpences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
-
-            let totalDailyExpense = total(todaysExpences)
-
-            await todaysExpences.sort(compare)
-
-
-            dateConverter(todaysExpences)
-
-            csvConverter(todaysExpences)
-            console.log(todaysExpences);
-
-            return res.send(todaysExpences)
-
-
-        }
-        if (weekly) {
-
-            let weeklyExpences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
-
-            let weeklyExpenceTotal = total(weeklyExpences)
-
-            await weeklyExpences.sort(compare)
-
-
-            return res.send({ weeklyExpenceTotal, weeklyExpences: weeklyExpences })
-
-
-        }
-        // if (monthly) {
-        //     let monthlyExpenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(monthStartTime) && moment(e.dateAndTime).isBefore(monthEndTime));
-
-        //     let monthlyExpenceTotal = total(monthlyExpenses)
-        //     await monthlyExpenses.sort(compare)
-
-        //     return res.send({ monthlyExpenceTotal, monthlyExpenses: monthlyExpenses })
-        // }
-        // if (yearly) {
-        //     let yearlyExpences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
-
-        //     let yearlyExpenceTotal = total(yearlyExpences)
-
-        //     await yearlyExpences.sort(compare)
-
-        //     return res.send({ yearlyExpenceTotal, yearlyExpences: yearlyExpencesz })
-        // }
-        // if (fromDate && toDate) {
-        //     fromDate = moment(fromDate);
-        //     toDate = moment(toDate)
-        //     let fromTotoExpenses = expencesData.expenses.filter(e => moment(moment(e.dateAndTime)).isBetween(fromDate, toDate, 'D', '[]'));
-
-        //     let fromTotoTotal = total(fromTotoExpenses)
-
-        //     await fromTotoExpenses.sort(compare)
-
-        //     return res.send({ fromTotoTotal, fromTotoExpenses: fromTotoExpenses })
-        // }
-
-
-        // if (fromDate) {
-
-        //     fromDate = moment(fromDate).startOf('day');
-        //     let fromDateExpenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
-
-        //     await fromDate.sort(compare)
-
-        //     return res.send({ fromDateExpenses: fromDateExpenses })
-        // }
-
-        let allExpenses = (await Expenses.findOne({ userId: userId }, {
-        }, {
-            lean: true
-        }))
-        let expenses = allExpenses.expenses.sort(compare)
-
-        // for (let element of expenses) {
-        //     element.dateAndTime = moment(element.dateAndTime).format('MMMM Do YYYY, h:mm:ss a')
-        //     delete element._id
-        // }
-
-
-        dateConverter(expenses)
-
-        // csvConverter(expenses)
-        // const parser = new Parser(expenses);
-        // const csv = parser.parse(expenses);
-
-        // return res.send(csv)
-
-        expenses.forEach(element => {
-            const csv = json2csvParser.parse(element);
-            console.log(csv);
-
-        });
-        const csv = json2csvParser.parse(expenses);
-        console.log(csv);
-
-        return res.send(csv)
-
-
-        // const csv = parserObj.parse(expenses)
-
-        // fs.writeFile('expenses.csv', csv, function (err) {
-        //     if (err) {
-        //         throw err;
-        //     }
-        //     console.log("File Saved");
-        //     fs.unlinkSync("expenses.csv")
-        // })
-
-
-
-        // return res.send(expencesData)
-    } catch (error) {
-        res.send(error)
-    }
-}
-
 
 
 
@@ -466,5 +225,5 @@ module.exports = {
     fetchExpenses,
     editExpense,
     deleteExpense,
-    downloadExpenses
+
 };
