@@ -48,13 +48,13 @@ const fetchExpenses = async (req, res) => {
         const weekly = req.body.weekly;
         const monthly = req.body.monthly;
         const yearly = req.body.yearly;
+        const id = req.body.id;
 
         const currentDateAndTime = moment();
 
         const filter = { userId: mongoose.Types.ObjectId(userId) }
 
         // by providing date and time
-
         let fromDate = req.body.fromDate;
         let toDate = req.body.toDate;
 
@@ -89,6 +89,13 @@ const fetchExpenses = async (req, res) => {
             }, 0)
         }
         let expencesData = await Expenses.findOne(filter);
+
+        if (id) {
+            let expenses = expencesData.expenses
+            let findExpense = expenses.filter((m => m._id.toString() === id.toString()))[0]
+            return res.send({ expenseDetails: findExpense })
+        }
+
 
         if (daily) {
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
@@ -148,8 +155,6 @@ const fetchExpenses = async (req, res) => {
     }
 }
 
-
-
 const editExpense = async (req, res) => {
     try {
         const note = req.body.note;
@@ -186,7 +191,6 @@ const editExpense = async (req, res) => {
 }
 
 
-
 const deleteExpense = async (req, res) => {
     try {
 
@@ -203,22 +207,6 @@ const deleteExpense = async (req, res) => {
         res.send(error)
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 module.exports = {
     addExpense,
