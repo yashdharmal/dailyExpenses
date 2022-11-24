@@ -89,88 +89,108 @@ const fetchExpenses = async (req, res) => {
             }, 0)
         }
 
-
+        console.log("hello");
         let expencesData = await Expenses.findOne(filter);
 
 
         if (daily) {
 
-            let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
+            let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
 
-            let totalExpense = total(expences)
+            let totalExpense = total(expenses)
 
-            await expences.sort(compare)
+            await expenses.sort(compare)
             // return res.send({ totalExpense, expenses: expences })
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
+            let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+
+            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
 
 
         }
         if (weekly) {
 
-            let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
+            let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
 
-            let totalExpense = total(expences)
+            let totalExpense = total(expenses)
 
-            await expences.sort(compare)
+            await expenses.sort(compare)
             // return res.send({ totalExpense, expenses: expences })
 
+            let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+
+            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
             // return res.send({ weeklyExpenceTotal, weeklyExpences: paginate(weeklyExpences) })
 
         }
         if (monthly) {
-            let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(monthStartTime) && moment(e.dateAndTime).isBefore(monthEndTime));
+            let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(monthStartTime) && moment(e.dateAndTime).isBefore(monthEndTime));
 
-            let totalExpense = total(expences)
-            await expences.sort(compare)
+            let totalExpense = total(expenses)
+            await expenses.sort(compare)
             // return res.send({ totalExpense, expenses: expences })
+            let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+
+            // return res.send({ totalExpense, expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
         if (yearly) {
-            let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
+            let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
 
-            let totalExpense = total(expences)
+            let totalExpense = total(expenses)
 
-            await expences.sort(compare)
+            await expenses.sort(compare)
             // return res.send({ totalExpense, expenses: expences })
+            let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
 
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+
+            // return res.send({ totalExpense, expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
         if (fromDate && toDate) {
             fromDate = moment(fromDate);
             toDate = moment(toDate)
-            let expences = expencesData.expenses.filter(e => moment(moment(e.dateAndTime)).isBetween(fromDate, toDate, 'D', '[]'));
+            let expenses = expencesData.expenses.filter(e => (moment(e.dateAndTime)).isBetween(fromDate, toDate, 'D', '[]'));
 
-            let totalExpense = total(expences)
+            console.log({ expenses });
+            let totalExpense = total(expenses)
+            console.log("from to");
+            await expenses.sort(compare)
+            let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
 
-            await expences.sort(compare)
+            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
 
-            // return res.send({ totalExpense, expenses: expences })
-            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
 
         if (fromDate) {
 
             fromDate = moment(fromDate).startOf('day');
-            let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
+            let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
 
-            await expences.sort(compare)
+            await expenses.sort(compare)
             // return res.send({ expenses: expenses })
+            let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
 
-            return res.send({ expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ expenses: expensesPaginate, totalSize: expensesPaginate.length })
+            // return res.send({ expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
-        let allExpenses = await Expenses.findOne({ userId: userId })
-        let expenses = allExpenses.expenses
+        // let allExpenses = await Expenses.findOne({ userId: userId })
+        // let expencesData = await Expenses.findOne(filter);
 
+        let expenses = expencesData.expenses
         await expenses.sort(compare)
         // return res.send({ expenses: expenses })
 
-        return res.send({ expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+        let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+        // return res.send({ expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+
+        return res.send({ expenses: expensesPaginate, totalSize: expensesPaginate.length })
 
 
     } catch (error) {
