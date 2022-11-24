@@ -42,12 +42,13 @@ const addExpense = async (req, res) => {
 
 const fetchExpenses = async (req, res) => {
     try {
-        // const { pageNumber = 1, pageSize = 10 } = req.body;
+        const { pageNumber = 1, pageSize = 10 } = req.body;
         const userId = req.user.userId
         const daily = req.body.daily;
         const weekly = req.body.weekly;
         const monthly = req.body.monthly;
         const yearly = req.body.yearly;
+
         const currentDateAndTime = moment();
 
         const filter = { userId: mongoose.Types.ObjectId(userId) }
@@ -99,10 +100,9 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
-            return res.send({ totalExpense, expenses: expences })
+            // return res.send({ totalExpense, expenses: expences })
 
-            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
-
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) });
 
 
         }
@@ -113,10 +113,10 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
-            return res.send({ totalExpense, expenses: expences })
+            // return res.send({ totalExpense, expenses: expences })
 
 
-            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
             // return res.send({ weeklyExpenceTotal, weeklyExpences: paginate(weeklyExpences) })
 
         }
@@ -125,9 +125,9 @@ const fetchExpenses = async (req, res) => {
 
             let totalExpense = total(expences)
             await expences.sort(compare)
-            return res.send({ totalExpense, expenses: expences })
+            // return res.send({ totalExpense, expenses: expences })
 
-            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
         if (yearly) {
             let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
@@ -135,9 +135,9 @@ const fetchExpenses = async (req, res) => {
             let totalExpense = total(expences)
 
             await expences.sort(compare)
-            return res.send({ totalExpense, expenses: expences })
+            // return res.send({ totalExpense, expenses: expences })
 
-            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
         if (fromDate && toDate) {
             fromDate = moment(fromDate);
@@ -148,8 +148,8 @@ const fetchExpenses = async (req, res) => {
 
             await expences.sort(compare)
 
-            return res.send({ totalExpense, expenses: expences })
-            // return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            // return res.send({ totalExpense, expenses: expences })
+            return res.send({ totalExpense, expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
 
@@ -159,18 +159,18 @@ const fetchExpenses = async (req, res) => {
             let expences = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
 
             await expences.sort(compare)
-            return res.send({ expenses: expenses })
+            // return res.send({ expenses: expenses })
 
-            // return res.send({ expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+            return res.send({ expenses: expences.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
         }
 
         let allExpenses = await Expenses.findOne({ userId: userId })
         let expenses = allExpenses.expenses
 
         await expenses.sort(compare)
-        return res.send({ expenses: expenses })
+        // return res.send({ expenses: expenses })
 
-        // return res.send({ expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
+        return res.send({ expenses: expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize) })
 
 
     } catch (error) {
@@ -220,13 +220,14 @@ const editExpense = async (req, res) => {
 
 const deleteExpense = async (req, res) => {
     try {
+
         const userId = req.user.userId
         const expenseId = req.body.expenseId
 
         await Expenses.updateOne({ userId: userId }, { "$pull": { "expenses": { "_id": expenseId } } },
             { safe: true, multi: true })
 
-        res.send("expense deleted successfully")
+        res.send({ message: "expense deleted successfully" })
 
 
     } catch (error) {
