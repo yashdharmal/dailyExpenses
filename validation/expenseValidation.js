@@ -45,7 +45,7 @@ const fetchExpencesSchema = Joi.object({
 
     pageSize: Joi.number().positive(),
 
-    id: Joi.objectId().required(),
+    id: Joi.objectId()
 
 
 
