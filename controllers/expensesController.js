@@ -93,7 +93,7 @@ const fetchExpenses = async (req, res) => {
         if (id) {
             let expenses = expencesData.expenses
             let findExpense = expenses.filter((m => m._id.toString() === id.toString()))[0]
-            return res.send({ expensesDetails: findExpense })
+            return res.send({ expenses: findExpense })
         }
 
 
@@ -161,6 +161,8 @@ const fetchExpenses = async (req, res) => {
         res.send(error)
     }
 }
+
+
 
 const editExpense = async (req, res) => {
     try {
