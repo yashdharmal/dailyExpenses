@@ -101,30 +101,34 @@ const fetchExpenses = async (req, res) => {
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
             let totalExpense = total(expenses)
             await expenses.sort(compare)
+            let totalExpensesRecord = expenses.length
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
         }
         if (weekly) {
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
             let totalExpense = total(expenses)
             await expenses.sort(compare)
+            let totalExpensesRecord = expenses.length
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
 
         }
         if (monthly) {
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(monthStartTime) && moment(e.dateAndTime).isBefore(monthEndTime));
             let totalExpense = total(expenses)
             await expenses.sort(compare)
+            let totalExpensesRecord = expenses.length
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
         }
         if (yearly) {
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
             let totalExpense = total(expenses)
             await expenses.sort(compare)
+            let totalExpensesRecord = expenses.length
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
         }
         if (fromDate && toDate) {
             fromDate = moment(fromDate).startOf('day');
@@ -132,21 +136,24 @@ const fetchExpenses = async (req, res) => {
             let expenses = expencesData.expenses.filter(e => moment(moment(e.dateAndTime)).isBetween(fromDate, toDate))
             let totalExpense = total(expenses)
             await expenses.sort(compare)
+            let totalExpensesRecord = expenses.length
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-            return res.send({ totalExpense, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
         }
         if (fromDate) {
             fromDate = moment(fromDate).startOf('day');
             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
             await expenses.sort(compare)
+            let totalExpensesRecord = expenses.length
             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-            return res.send({ expenses: expensesPaginate, totalSize: expensesPaginate.length })
+            return res.send({ totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
 
         }
         let expenses = expencesData.expenses
         await expenses.sort(compare)
+        let totalExpensesRecord = expenses.length
         let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-        return res.send({ expenses: expensesPaginate, totalSize: expensesPaginate.length })
+        return res.send({ totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
 
 
     } catch (error) {

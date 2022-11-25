@@ -11,7 +11,6 @@ const signup = async (req, res) => {
         let userFound = await Users.findOne({ email: req.body.email });
 
 
-
         if (userFound) {
             return res.send({ message: "this email is already registed please sign in" });
         } else {
