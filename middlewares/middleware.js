@@ -14,7 +14,12 @@ const authMiddelware = (req, res, next) => {
         req.user = tokenData
         next();
     } catch (error) {
-        res.status(401).send("Un authorized")
+        res.status(401).send({
+            "error": {
+                "code": "AutorizationError",
+                "message": "Invalid JWT."
+            }
+        })
     }
 
 }
@@ -27,7 +32,14 @@ const validateRequest = (valiationSchema) => {
         const validationResult = valiationSchema.validate(req.body);
         if (validationResult.error) {
             let errorString = validationResult.error.details[0].message
-            return res.send(validationResult.error.details[0].message)
+
+            return res.status(400).send({
+                "success": false,
+                "error": {
+                    "code": "ValidationError",
+                    "message": errorString
+                }
+            })
         }
 
         next()

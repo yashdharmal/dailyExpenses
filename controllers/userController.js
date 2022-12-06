@@ -43,29 +43,22 @@ const login = async (req, res,) => {
         const recivedEmail = req.body.email;
         const recivedPassword = req.body.password;
         const userFound = await Users.findOne({ email: recivedEmail })
-
         if (!userFound) {
             return res.send({ message: "User not found" })
-
         }
-
         if (await bcrypt.compare(recivedPassword, userFound.password)) {
             let findUserId = await Users.findOne({ email: req.body.email })
-
             userId = findUserId._id
             var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
             return res.send({ message: "You have succesfully loged in", token })
         } else {
             return res.send({ message: "plese check email or pass" })
         }
-
     } catch (error) {
         console.log({ error })
         res.send(error)
     }
-
 }
-
 module.exports = {
     signup,
     login
