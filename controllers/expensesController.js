@@ -3,133 +3,127 @@ const express = require('express');
 const jwt = require("jsonwebtoken");
 const moment = require('moment/moment');
 const { mongoose } = require('mongoose');
-const Expenses = require('../models/expensesModel')
-
+const Expenses = require('../models/expensesModel');
+const { fetchExpences } = require('../queries/expense');
 
 
 const addExpense = async (req, res) => {
     try {
 
-        const { note, amount } = req.body
-        let dateAndTime = req.body.dateAndTime || new Date().toISOString();
+        const { note, amount, dateAndTime = new Date().toISOString() } = req.body
+        // let dateAndTime = req.body.dateAndTime || new Date().toISOString();
         const userId = req.user.userId
+        console.log(dateAndTime);
         let dataForExpenses = { note, amount, dateAndTime }
         await Expenses.findOneAndUpdate(
             { userId: userId },
             { $push: { expenses: dataForExpenses } }
         )
-        return res.send({ message: "expenses added successfully" })
+
+        return res.send({
+            success: true,
+            data: {
+                note: note,
+                amount: amount,
+                dateAndTime: dateAndTime
+            },
+            message: "expenses added successfully"
+        })
+
 
     } catch (error) {
-        console.log(error);
-        res.send(error)
+        res.send({
+            success: false,
+            message: "Add Expense faild",
+            error: "DE-A - 01",
+            addExpenseErrorStack: {
+                message: (error)
+            }
+        })
     }
 }
 const fetchExpenses = async (req, res) => {
     try {
-        const { pageNumber = 1, pageSize = 10 } = req.body;
-        const userId = req.user.userId
-        const { id, daily, weekly, monthly, yearly } = req.body;
-        const filter = { userId: mongoose.Types.ObjectId(userId) }
-
-        // by providing date and time
-
-        const { fromDate, toDate } = req.body
+        const { pageNumber = 1, pageSize = 10, fromDate, toDate, id, daily, weekly, monthly, yearly } = req.body;
+        const userId = req.user.userId;
+        const filter = { userId };
+        let param = {}
         // day
-        const todayStartTime = moment().startOf('day');
-        const todayEndTime = moment().endOf('day');
+        const todayStartTime = moment().startOf('day').toDate();
+        const todayEndTime = moment().endOf('day').toDate();
         // week
-        const weekStartTime = moment().startOf('week');
-        const weekEndTime = moment().endOf('week')
+        const weekStartTime = moment().startOf('week').toDate();
+        const weekEndTime = moment().endOf('week').toDate();
         // month
-        const monthStartTime = moment().startOf('month')
-        const monthEndTime = moment().endOf('month')
+        const monthStartTime = moment().startOf('month').toDate();
+        const monthEndTime = moment().endOf('month').toDate();
         // year
-        const yearStartTime = moment().startOf('year');
-        const yearEndTime = moment().endOf('year');
+        const yearStartTime = moment().startOf('year').toDate();
+        const yearEndTime = moment().endOf('year').toDate();
 
-        /// function for dry
-        // compare
-        function compare(a, b) {
-            return new Date(b.dateAndTime) - new Date(a.dateAndTime);
-        }
-        // total function
-        function total(arr) {
-
-            return arr.reduce(function (acc, curr) {
-                acc = curr.amount + acc
-                return acc
-            }, 0)
-        }
-        // paginate function
-
-        function paginate(arr) {
-            return arr.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-        }
-        let expensesData = await Expenses.findOne(filter);
         if (id) {
+            let expensesData = await Expenses.findOne({ userId: mongoose.Types.ObjectId(userId) });
             let expenses = expensesData.expenses
             let findExpense = expenses.filter((m => m._id.toString() === id.toString()))[0]
             return res.send({ expenses: findExpense })
         }
-        if (daily) {
-            let expenses = expensesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
-            let totalExpense = total(expenses)
-            expenses.sort(compare)
-            let totalExpensesRecord = expenses.length
-            let expensesPaginate = paginate(expenses)
-            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-        }
-        if (weekly) {
-            let expenses = expensesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
-            let totalExpense = total(expenses)
-            expenses.sort(compare)
-            let totalExpensesRecord = expenses.length
-            let expensesPaginate = paginate(expenses)
-            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-        }
-        if (monthly) {
-            let expenses = expensesData.expenses.filter(e => moment(e.dateAndTime).isAfter(monthStartTime) && moment(e.dateAndTime).isBefore(monthEndTime));
-            let totalExpense = total(expenses)
-            expenses.sort(compare)
-            let totalExpensesRecord = expenses.length
-            let expensesPaginate = paginate(expenses)
-            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-        }
-        if (yearly) {
-            let expenses = expensesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
-            let totalExpense = total(expenses)
-            expenses.sort(compare)
-            let totalExpensesRecord = expenses.length
-            let expensesPaginate = paginate(expenses)
-            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-        }
-        if (fromDate && toDate) {
-            fromDate = moment(fromDate).startOf('day');
-            toDate = moment(toDate).endOf('day');
-            let expenses = expensesData.expenses.filter(e => moment(moment(e.dateAndTime)).isBetween(fromDate, toDate))
-            let totalExpense = total(expenses)
-            expenses.sort(compare)
-            let totalExpensesRecord = expenses.length
-            let expensesPaginate = paginate(expenses)
-            return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-        }
-        if (fromDate) {
-            fromDate = moment(fromDate).startOf('day');
-            let expenses = expensesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
-            expenses.sort(compare)
-            let totalExpensesRecord = expenses.length
-            let expensesPaginate = paginate(expenses)
-            return res.send({ totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-        }
-        let expenses = expensesData.expenses
-        expenses.sort(compare)
-        let totalExpensesRecord = expenses.length
-        let expensesPaginate = paginate(expenses)
-        return res.send({ totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
+        else if (daily) {
+
+            param = {
+                filter,
+                fromDate: todayStartTime,
+                toDate: todayEndTime,
+                pageNumber,
+                pageSize
+            }
+        } else
+            if (weekly) {
+                param = {
+                    filter,
+                    fromDate: weekStartTime,
+                    toDate: weekEndTime,
+                    pageNumber,
+                    pageSize
+                }
+            } else
+                if (monthly) {
+                    param = {
+                        filter,
+                        fromDate: monthStartTime,
+                        toDate: monthEndTime,
+                        pageNumber,
+                        pageSize
+                    }
+                } else
+                    if (yearly) {
+                        param = {
+                            filter,
+                            fromDate: yearStartTime,
+                            toDate: yearEndTime,
+                            pageNumber,
+                            pageSize
+                        }
+                    } else {
+                        param = {
+                            filter,
+                            ...req.body,
+                        }
+                    }
+        let data = await fetchExpences(param);
+        return res.send({
+            success: true,
+            data,
+            message: "Expesnses Fetched successfully"
+        })
     } catch (error) {
-        console.log(error)
-        res.send(error)
+        res.send({
+            success: false,
+            message: "Fetch Expense failed",
+            error: "DE-F-01",
+            EditExpenseErrorStack: {
+                message: (error)
+            }
+        })
     }
 }
 const editExpense = async (req, res) => {
@@ -149,9 +143,19 @@ const editExpense = async (req, res) => {
                 'expenses.$.dateAndTime': currentDateAndTime
             }
         })
-        return res.send({ messsage: "expense is updated succesfully" })
+        return res.send({
+            success: true,
+            message: "expense is updated succesfully"
+        })
     } catch (error) {
-        res.send(error)
+        res.send({
+            success: false,
+            message: "edit Expense failed",
+            error: "DE-E-01",
+            EditExpenseErrorStack: {
+                message: (error)
+            }
+        })
     }
 }
 
@@ -159,13 +163,25 @@ const deleteExpense = async (req, res) => {
     try {
         const userId = req.user.userId
         const expenseId = req.body.expenseId
-
         await Expenses.updateOne({ userId: userId }, { "$pull": { "expenses": { "_id": expenseId } } },
             { safe: true, multi: true })
-        res.send({ message: "expense deleted successfully" })
+        // res.send({ message: "expense deleted successfully" })
+
+        return res.send({
+            success: true,
+            message: "expenses deleted successfully"
+        })
 
     } catch (error) {
-        res.send(error)
+        // res.send(error)
+        res.send({
+            success: false,
+            message: "expense Delete failed",
+            error: "DE-D-01",
+            deleteExpenseErrorStack: {
+                message: (error)
+            }
+        })
     }
 }
 

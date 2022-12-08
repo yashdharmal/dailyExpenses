@@ -9,29 +9,41 @@ const Expenses = require("../models/expensesModel")
 const signup = async (req, res) => {
     try {
         let userFound = await Users.findOne({ email: req.body.email });
-
-
         if (userFound) {
-            return res.send({ message: "this email is already registed please sign in" });
+
+            return res.send({
+                success: false,
+                message: "this email is already registered please sign in",
+            })
+
         } else {
-
             await Users.create(req.body)
-
             let findUserId = await Users.findOne({ email: req.body.email })
-
             userId = findUserId._id
             var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
             const expenses = []
             const dataForExpenses = { userId: userId, expenses }
             await Expenses.create(dataForExpenses)
 
-            return res.send({ message: "You have succesfully registed", token })
-
+            return res.send({
+                success: true,
+                data: { token: token },
+                message: "You have succesfully registed"
+            })
         }
 
     } catch (error) {
 
-        res.send(error)
+
+        res.status(403).send({
+
+            success: false,
+            message: "signup failed",
+            error: "DE-S- 01",
+            signupErrorStack: {
+                message: (error)
+            }
+        })
 
     }
 
@@ -44,19 +56,35 @@ const login = async (req, res,) => {
         const recivedPassword = req.body.password;
         const userFound = await Users.findOne({ email: recivedEmail })
         if (!userFound) {
-            return res.send({ message: "User not found" })
+            return res.send({
+                success: false,
+                message: "user not found"
+            })
         }
         if (await bcrypt.compare(recivedPassword, userFound.password)) {
             let findUserId = await Users.findOne({ email: req.body.email })
             userId = findUserId._id
             var token = jwt.sign({ email: req.body.email, userId }, process.env.SECRECT_KEY);
-            return res.send({ message: "You have succesfully loged in", token })
+            return res.send({
+                success: true,
+                data: { token: token },
+                message: "You have successfully loged in"
+            })
         } else {
-            return res.send({ message: "plese check email or pass" })
+            return res.send({
+                success: false,
+                message: "please Check email or password"
+            })
         }
     } catch (error) {
-        console.log({ error })
-        res.send(error)
+        res.status(403).send({
+            success: false,
+            message: "login failed",
+            error: "DE-L- 01",
+            loginErrorStack: {
+                message: (error)
+            }
+        })
     }
 }
 module.exports = {

@@ -6,47 +6,33 @@ const userId = "636cee161a008cc3bf99d382"
 
 const fetchExpences = async (param) => {
     try {
-
+        let pageNumber = param.pageNumber || 1
+        let pageSize = param.pageSize || 10
+        console.log(param);
         let result = await Expenses.aggregate([
             {
-                /**
-                 * query: The query in MQL.
-                 */
-                $match: {
-                    userId: "636cee161a008cc3bf99d382",
-                },
+                $match: param.filter,
             },
             {
-                $project:
-                /**
-                 * specifications: The fields to
-                 *   include or exclude.
-                 */
-                {
+                $project: {
                     userId: 1,
                     expenses: {
                         $filter: {
                             input: "$expenses",
                             cond: {
                                 $and: [
-                                    {
-                                        $gte: [
+                                    ...(param.fromDate ? [{
+                                        $gt: [
                                             "$$expence.dateAndTime",
-                                            // param.toDate
-                                            ISODate(
-                                                "2022-11-14T12:54:13.825+00:00"
-                                            ),
+                                            new Date(param.fromDate)
                                         ],
-                                    },
-                                    {
+                                    }] : []),
+                                    ...(param.toDate ? [{
                                         $lte: [
                                             "$$expence.dateAndTime",
-                                            // param.fromDate
-                                            ISODate(
-                                                "2022-11-18T09:37:58.923+00:00"
-                                            ),
+                                            new Date(param.toDate)
                                         ],
-                                    },
+                                    }] : []),
                                 ],
                             },
                             as: "expence",
@@ -55,75 +41,61 @@ const fetchExpences = async (param) => {
                 },
             },
             {
-                /**
-                 * field: The field name
-                 * expression: The expression.
-                 */
                 $set: {
                     totalExpense: { $sum: "$expenses.amount" },
                     totalExpensesRecord: { $size: "$expenses" },
                 },
             },
             {
-                /**
-                 * path: Path to the array field.
-                 * includeArrayIndex: Optional name for index.
-                 * preserveNullAndEmptyArrays: Optional
-                 *   toggle to unwind null and empty values.
-                 */
                 $unwind: {
                     path: "$expenses",
                     preserveNullAndEmptyArrays: true,
                 },
             },
             {
-                /**
-                 * field: The field name
-                 * expression: The expression.
-                 */
                 $sort: {
                     "expenses.dateAndTime": -1,
                 },
             },
             {
-                /**
-                 * _id: The id of the group.
-                 * fieldN: The first field name.
-                 */
                 $group: {
                     _id: "$_id",
                     userId: { $first: "$userId" },
                     expenses: {
                         $push: "$expenses",
                     },
-                    totalExpenses: { $first: "$totalExpense" },
+                    totalExpensesAmount: { $first: "$totalExpense" },
                     totalExpensesRecord: {
                         $first: "$totalExpensesRecord",
+                    }
+                },
+            },
+            {
+                $set: {
+                    expenses: {
+                        $slice: ["$expenses", (pageNumber - 1) * (pageSize) || 0, pageSize]
+                        // $slice: ["$expenses", ((param.pageNumber - 1) * (param.pageSize || 10)) || 0, param.pageSize || 10],
                     },
+                },
+            },
+            {
+                $set: {
+                    pageSize: {
+                        $size: "$expenses"
+                    },
+                    pageNumber: param.pageNumber || 1
                 },
             },
         ])
         return result
     } catch (error) {
+        console.log(error);
+        // res.send(error)
         res.send(error)
     }
 }
 
 
-
-// if (daily) {
-//     param.toDate = todayStartTime
-//     param.fromDate = todayEndTime
-// }
-
-// if (id) {
-
-//     filter = {
-//         ...filter,
-//         fromDate: fromDate,
-//         toDate: toDate
-//     }
-// }
 
 module.exports = {
     fetchExpences

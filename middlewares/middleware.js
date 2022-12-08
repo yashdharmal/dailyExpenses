@@ -8,16 +8,16 @@ const jwt = require("jsonwebtoken");
 const authMiddelware = (req, res, next) => {
     try {
         let token = req.headers.authorization
-
         let tokenData = jwt.verify(token, process.env.SECRECT_KEY)
-
         req.user = tokenData
         next();
     } catch (error) {
         res.status(401).send({
-            "error": {
-                "code": "AutorizationError",
-                "message": "Invalid JWT."
+            success: false,
+            message: "authorization failed",
+            error: "DEAT-01",
+            authorizationErrorStack: {
+                message: (error)
             }
         })
     }
@@ -35,10 +35,17 @@ const validateRequest = (valiationSchema) => {
 
             return res.status(400).send({
                 "success": false,
-                "error": {
-                    "code": "ValidationError",
+                "message": "validation failed",
+                "error": "DEV-01",
+                "validationErrorStack": {
                     "message": errorString
                 }
+                // "error": {
+                //     "code": "ValidationError",
+                //     "message": errorString
+                // }
+
+
             })
         }
 

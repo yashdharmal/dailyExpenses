@@ -1,0 +1,20 @@
+DE - daily Expesses app
+A - add Expesses
+F - fetch Expesses
+E - edit Expesses
+D - delete Expesses
+V - validation problem
+S - signup problem
+L - login problem
+AT - authorizatipn problem
+AG - agrigation problem
+
+DE-A-01 - problem in Add Expesses
+DE-F-01- problem in fetch Expesses
+DE-E-01- problem in edit Expesses
+DE-D-01 - problem in delete Expesses 
+DE-V-01- problem in validation
+DE-S- 01- problem in signup
+DE-L - 01- problem in login
+DE-AT - 01- problem in  authorization
+DE-AG- 01- problem in aggregation

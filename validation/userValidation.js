@@ -14,12 +14,7 @@ const signupSchema = Joi.object({
 
 const loginSchema = Joi.object({
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
-
-    password: Joi.string().min(8).max(30).regex(/[a-zA-Z0-9]{3,30}/).required().messages({
-        "String.pattern.base": `Password should be between 3 to 30 characters and contain letters or numbers only`,
-        "string.empty": `Password cannot be empty`,
-        "any.required": `Password is required`,
-    })
+    password: Joi.string().min(8).max(30).regex(/[a-zA-Z0-9]{3,30}/).required()
 
 });
 
