@@ -51,11 +51,16 @@ const fetchExpencesSchema = Joi.object({
 
 })
 
+const summarySchema = Joi.object({
+    flag: Joi.string().valid(1, 2, 3).required()
+})
+
 
 module.exports = {
     addExpenseSchema,
     updateExpenseSchema,
     deleteExpenseSchema,
-    fetchExpencesSchema
+    fetchExpencesSchema,
+    summarySchema
 
 }

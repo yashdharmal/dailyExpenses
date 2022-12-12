@@ -6,7 +6,7 @@ const { default: mongoose } = require('mongoose');
 const Expenses = require('../models/expensesModel')
 const { Parser } = require('json2csv');
 const fs = require('fs');
-const { fetchExpences } = require('../queries/expense');
+const queries = require('../queries/expense');
 
 const addExpense = async (req, res) => {
     try {
@@ -41,128 +41,6 @@ const addExpense = async (req, res) => {
     }
 }
 
-// const fetchExpenses = async (req, res) => {
-//     try {
-//         const { pageNumber = 1, pageSize = 10 } = req.body;
-//         const userId = req.user.userId
-//         const daily = req.body.daily;
-//         const weekly = req.body.weekly;
-//         const monthly = req.body.monthly;
-//         const yearly = req.body.yearly;
-//         const id = req.body.id;
-
-//         const currentDateAndTime = moment();
-
-//         const filter = { userId: mongoose.Types.ObjectId(userId) }
-
-//         // by providing date and time
-//         let fromDate = req.body.fromDate;
-//         let toDate = req.body.toDate;
-
-//         // day
-//         const todayStartTime = moment().startOf('day');
-//         const todayEndTime = moment().endOf('day');
-//         // week
-//         const weekStartTime = moment().startOf('week');
-//         const weekEndTime = moment().endOf('week')
-
-//         // month
-//         const monthStartTime = moment().startOf('month')
-//         const monthEndTime = moment().endOf('month')
-//         // year
-//         const yearStartTime = moment().startOf('year');
-//         const yearEndTime = moment().endOf('year');
-
-//         /// function for dry
-
-//         // compare
-
-//         function compare(a, b) {
-//             return new Date(b.dateAndTime) - new Date(a.dateAndTime);
-//         }
-
-//         // total function
-//         function total(arr) {
-
-//             return arr.reduce(function (acc, curr) {
-//                 acc = curr.amount + acc
-//                 return acc
-//             }, 0)
-//         }
-//         let expencesData = await Expenses.findOne(filter);
-
-//         if (id) {
-//             let expenses = expencesData.expenses
-//             let findExpense = expenses.filter((m => m._id.toString() === id.toString()))[0]
-//             return res.send({ expenses: findExpense })
-//         }
-
-
-//         if (daily) {
-//             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(todayStartTime) && moment(e.dateAndTime).isBefore(todayEndTime));
-//             let totalExpense = total(expenses)
-//             await expenses.sort(compare)
-//             let totalExpensesRecord = expenses.length
-//             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-//             return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-//         }
-//         if (weekly) {
-//             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(weekStartTime) && moment(e.dateAndTime).isBefore(weekEndTime))
-//             let totalExpense = total(expenses)
-//             await expenses.sort(compare)
-//             let totalExpensesRecord = expenses.length
-//             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-//             return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-
-//         }
-//         if (monthly) {
-//             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(monthStartTime) && moment(e.dateAndTime).isBefore(monthEndTime));
-//             let totalExpense = total(expenses)
-//             await expenses.sort(compare)
-//             let totalExpensesRecord = expenses.length
-//             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-//             return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-//         }
-//         if (yearly) {
-//             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(yearStartTime) && moment(e.dateAndTime).isBefore(yearEndTime))
-//             let totalExpense = total(expenses)
-//             await expenses.sort(compare)
-//             let totalExpensesRecord = expenses.length
-//             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-//             return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-//         }
-//         if (fromDate && toDate) {
-//             fromDate = moment(fromDate).startOf('day');
-//             toDate = moment(toDate).endOf('day');
-//             let expenses = expencesData.expenses.filter(e => moment(moment(e.dateAndTime)).isBetween(fromDate, toDate))
-//             let totalExpense = total(expenses)
-//             await expenses.sort(compare)
-//             let totalExpensesRecord = expenses.length
-//             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-//             return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-//         }
-//         if (fromDate) {
-//             fromDate = moment(fromDate).startOf('day');
-//             let expenses = expencesData.expenses.filter(e => moment(e.dateAndTime).isAfter(fromDate));
-//             await expenses.sort(compare)
-//             let totalExpensesRecord = expenses.length
-//             let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-//             return res.send({ totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-
-//         }
-//         let expenses = expencesData.expenses
-//         await expenses.sort(compare)
-//         let totalExpensesRecord = expenses.length
-//         let totalExpense = total(expenses)
-//         let expensesPaginate = expenses.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-//         return res.send({ totalExpense, totalExpensesRecord, expenses: expensesPaginate, totalSize: expensesPaginate.length })
-
-
-//     } catch (error) {
-//         console.log(error)
-//         res.send(error)
-//     }
-// }
 
 const fetchExpenses = async (req, res) => {
     try {
@@ -171,17 +49,6 @@ const fetchExpenses = async (req, res) => {
         const filter = { userId };
         let param = {}
         // day
-        const todayStartTime = moment().startOf('day').toDate();
-        const todayEndTime = moment().endOf('day').toDate();
-        // week
-        const weekStartTime = moment().startOf('week').toDate();
-        const weekEndTime = moment().endOf('week').toDate();
-        // month
-        const monthStartTime = moment().startOf('month').toDate();
-        const monthEndTime = moment().endOf('month').toDate();
-        // year
-        const yearStartTime = moment().startOf('year').toDate();
-        const yearEndTime = moment().endOf('year').toDate();
 
         if (id) {
             let expensesData = await Expenses.findOne({ userId: mongoose.Types.ObjectId(userId) });
@@ -189,49 +56,49 @@ const fetchExpenses = async (req, res) => {
             let findExpense = expenses.filter((m => m._id.toString() === id.toString()))[0]
             return res.send({ expenses: findExpense })
         }
-        else if (daily) {
+        // else if (daily) {
 
-            param = {
-                filter,
-                fromDate: todayStartTime,
-                toDate: todayEndTime,
-                pageNumber,
-                pageSize
-            }
-        } else
-            if (weekly) {
-                param = {
-                    filter,
-                    fromDate: weekStartTime,
-                    toDate: weekEndTime,
-                    pageNumber,
-                    pageSize
-                }
-            } else
-                if (monthly) {
-                    param = {
-                        filter,
-                        fromDate: monthStartTime,
-                        toDate: monthEndTime,
-                        pageNumber,
-                        pageSize
-                    }
-                } else
-                    if (yearly) {
-                        param = {
-                            filter,
-                            fromDate: yearStartTime,
-                            toDate: yearEndTime,
-                            pageNumber,
-                            pageSize
-                        }
-                    } else {
-                        param = {
-                            filter,
-                            ...req.body,
-                        }
-                    }
-        let data = await fetchExpences(param);
+        //     param = {
+        //         filter,
+        //         fromDate: todayStartTime,
+        //         toDate: todayEndTime,
+        //         pageNumber,
+        //         pageSize
+        //     }
+        // } else
+        //     if (weekly) {
+        //         param = {
+        //             filter,
+        //             fromDate: weekStartTime,
+        //             toDate: weekEndTime,
+        //             pageNumber,
+        //             pageSize
+        //         }
+        //     } else
+        //         if (monthly) {
+        //             param = {
+        //                 filter,
+        //                 fromDate: monthStartTime,
+        //                 toDate: monthEndTime,
+        //                 pageNumber,
+        //                 pageSize
+        //             }
+        //         } else
+        // if (yearly) {
+        //     param = {
+        //         filter,
+        //         fromDate: yearStartTime,
+        //         toDate: yearEndTime,
+        //         pageNumber,
+        //         pageSize
+        //     }
+        //             } else {
+        param = {
+            filter,
+            ...req.body,
+        }
+        // }
+        let data = await queries.fetchExpences(param);
         return res.send(...data)
     } catch (error) {
         res.send(error)
@@ -239,6 +106,96 @@ const fetchExpenses = async (req, res) => {
 }
 
 
+const expenseSummary = async (req, res) => {
+    try {
+        // console.log("CALLED !!");
+        const { flag } = req.body
+        const userId = req.user.userId;
+        const filter = { userId }
+        console.log({ flag });
+        // console.log(filter);
+        let param = {}
+        //yearly = 1
+        // monthly =2
+        // weekly =3
+
+        // if (flag == 1) {
+
+        //     param = {
+        //         $group: {
+        //             _id: { year: "$year" },
+        //             totalAmount: {
+        //                 $sum: "$amount",
+        //             },
+        //         }
+        //     }
+        //     console.log({ param });
+        // }
+        // if (flag == 2) {
+        //     param = {
+
+        //         $group: {
+        //             _id: { month: "$month", year: "$year" },
+        //             totalAmount: { $sum: "$amount" },
+
+        //         },
+
+        //     }
+        // }
+        // if (flag == 3) {
+        //     param = {
+        //         $group: {
+        //             _id: { week: "$week", year: "$year" },
+        //             totalAmount: { $sum: "$amount" },
+        //         }
+        //     }
+        // }
+
+        switch (flag) {
+            case 1: param = {
+                $group: {
+                    _id: { year: "$year" },
+                    totalAmount: {
+                        $sum: "$amount",
+                    },
+                }
+            }
+
+                break;
+            case 2: param = {
+
+                $group: {
+                    _id: { month: "$month", year: "$year" },
+                    totalAmount: { $sum: "$amount" },
+
+                },
+
+            }
+
+                break;
+            case 3: param = {
+                $group: {
+                    _id: { week: "$week", year: "$year" },
+                    totalAmount: { $sum: "$amount" },
+                }
+            }
+
+                break;
+            default:
+                break;
+        }
+
+
+
+
+        console.log({ param, filter });
+        let data = await queries.Summary(param, filter);
+        console.log({ data });
+        return res.send(data)
+    } catch (error) {
+        res.send()
+    }
+}
 
 const editExpense = async (req, res) => {
     try {
@@ -276,6 +233,8 @@ const editExpense = async (req, res) => {
 }
 
 
+
+
 const deleteExpense = async (req, res) => {
     try {
 
@@ -298,5 +257,6 @@ module.exports = {
     fetchExpenses,
     editExpense,
     deleteExpense,
+    expenseSummary
 
 };
